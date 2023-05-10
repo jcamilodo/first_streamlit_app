@@ -5,6 +5,12 @@ import snowflake.connector
 
 from urllib.error import URLError
 
+def get_fruit_list():
+  my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+  with my_cnx.cursor() as my_cur: 
+    my_cur.execute("select * from pc_rivery_db.public.fruit_load_list")
+    return my_cur.fetchall()
+
 streamlit.title("My parents New Healthy Diner")
 
 streamlit.header("Breakfast Menu")
@@ -42,19 +48,17 @@ try:
 except URLError as e:
   streamlit.error()
 
+streamlit.text("The fruit list contain:")
+if streamlit.button("Gert fruit list"):
+  my_data_row = get_fruit_list()
+  streamlit.dataframe(my_data_row)
+  
+  
 fruit_add = streamlit.text_input('What fruit would you like to add ?')
 streamlit.write('Thanks for add ', fruit_add)
 
 streamlit.stop()
 
-my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
-my_cur = my_cnx.cursor()
-my_cur.execute("select * from pc_rivery_db.public.fruit_load_list")
 
-my_cur.execute("insert into PC_RIVERY_DB.PUBLIC.FRUIT_LOAD_LIST values ('from streamlit') ")
-
-my_data_row = my_cur.fetchone()
-streamlit.text("The fruit list contain:")
-streamlit.dataframe(my_data_row)
 
 
